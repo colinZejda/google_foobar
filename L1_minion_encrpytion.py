@@ -26,6 +26,9 @@ def solution(x):
     res = ""
     for c in x:
         if c.islower():
+            # ord() converts char to ascii int
+            # chr() converts ascii int to char
+            # 'a' is 97, 'z' is 122, 219 is 97+122, which performs the reversal a->z, b->y, c->x, etc
             c = chr(219 - ord(c))
         res += c
     return res
