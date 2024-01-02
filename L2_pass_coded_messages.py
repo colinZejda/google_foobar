@@ -32,5 +32,69 @@ When you are finished editing your code, use submit [file] to submit your answer
 If your solution passes the test cases, it will be removed from your home folder.
 """
 
+"""
+MAIN IDEAS (old soln)
+-- trick to check divisibility by 3: if all the digits add to a multiple of 3, it's divisible by 3
+-- use backtracking (not all digits must be used, so 2**n possibilities)
+
+def is_div_by_3(lst):
+    return sum(lst) % 3 == 0
+
+def backtrack_helper(s, max_found):
+    if s and is_div_by_3(s):
+        max_found[0] = max(max_found[0], int("".join(map(str, sorted(s, reverse=True)))))
+    for i in range(len(s)):
+        val = s.pop(i)
+        backtrack_helper(s, max_found)
+        s.insert(i, val)
+
 def solution(l):
-    pass
+    max_found = [-1]
+    backtrack_helper(l, max_found)
+    return max_found[0]
+
+if __name__ == "__main__":
+    print(solution([3, 1, 4, 1]))        # Out: 4311
+    print(solution([3, 1, 4, 1, 5, 9]))  # Out: 94311
+"""
+
+
+"""
+MAIN IDEAS (new soln)
+    -- digits sum to multiple of 3
+    -- sum(l) % 3 == how much we're off by (1 or 2)
+    -- find 1 or 2 numbers that, when modded by 3, sum to the amount we're off by
+    -- we can remove at most 2 elements, linear time (one scan)
+"""
+
+def solution(l):
+    l.sort(reverse=True)
+    off_by = sum(l) % 3
+    if off_by == 0:                           # soln found immediately
+        return int(''.join(map(str, l)))
+    
+    def bye_digit(offby):                     # helper
+        for i, digit in enumerate(l[::-1]):
+            if digit % 3 == offby:
+                del l[len(l) - i - 1]
+                return True 
+        return False
+
+    if off_by == 1:                          # off by 1 (1 or 2+2)
+        if not bye_digit(1):
+            if not (bye_digit(2) and bye_digit(2)):
+                return 0
+    else:                                    # off by 2 (2 or 1+1)
+        if not bye_digit(2):
+            if not (bye_digit(1) and bye_digit(1)):
+                return 0
+    return int(''.join(map(str, l))) if l else 0
+
+if __name__ == "__main__":
+    print(solution([3, 1, 4, 1]))        # Out: 4311
+    print(solution([3, 1, 4, 1, 5, 9]))  # Out: 94311
+
+    print(solution([3, 1, 5, 9]))        # Out: 9531 (or any permutation of these digits)
+    print(solution([1, 2, 4]))           # Out: 42
+    print(solution([2, 2, 1, 1]))        # Out: 2211
+    print(solution([0, 0, 0]))           # Out: 0
